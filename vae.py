@@ -128,36 +128,5 @@ def train(model, n_epochs, train_loader, val_loader, device, optimizer, ):
         val_loss_epoch = np.mean(val_losses_epoch)
         val_losses.append(val_loss_epoch)
 
-        # tqdm.write(f'Epoch {epoch+1:>3}/{n_epochs} | train loss: {train_loss_epoch:.2f} | val loss: {val_loss_epoch:.2f}')
-    plt.figure(figsize=(8, 4))
-    plt.plot(train_losses, label='train')
-    plt.plot(val_losses, label='val')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-    
+        # tqdm.write(f'Epoch {epoch+1:>3}/{n_epochs} | train loss: {train_loss_epoch:.2f} | val loss: {val_loss_epoch:.2f}')    
     return train_losses, val_losses
-
-
-def reconstruct(model, val_loader, device):
-    model.eval()
-    with torch.no_grad():
-        sample_batch = next(iter(val_loader))
-        sample_batch = sample_batch.permute(0, 3, 1, 2).to(device).to(torch.float32) / 255
-        reconstruction, mu, std = model(sample_batch)
-
-    n_show = 10
-    fig, axes = plt.subplots(2, n_show, figsize=(16, 4))
-    for i in range(n_show):
-        axes[0, i].imshow(sample_batch[i].cpu().permute(1, 2, 0).numpy().clip(0, 1))
-        axes[0, i].axis('off')
-        axes[1, i].imshow(reconstruction[i].cpu().permute(1, 2, 0).numpy().clip(0, 1))
-        axes[1, i].axis('off')
-
-    axes[0, 0].set_title('Original', fontsize=9)
-    axes[1, 0].set_title('Reconstruction', fontsize=9)
-
-    plt.tight_layout()
-    plt.show()

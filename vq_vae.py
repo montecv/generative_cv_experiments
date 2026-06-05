@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from tqdm import tqdm
  
  
 class _VectorQuantizerBase(nn.Module):
@@ -169,3 +170,35 @@ class TinnyVQVAE(nn.Module):
 def loss_vq_vae(x, reconstruction, vq_loss):
     mse_loss = nn.MSELoss(reduction='sum')(x, reconstruction)
     return mse_loss + vq_loss
+
+def train(model, n_epochs, train_loader, val_loader, device, optimizer, ):
+    train_mse_losses, train_vq_losses = [], []
+    val_mse_losses, val_vq_losses   = [], []
+
+    for epoch in tqdm(range(n_epochs)):
+        model.train()
+        epoch_mse, epoch_vq = 0.0, 0.0
+        for batch in train_loader:
+            batch = batch.permute(0, 3, 1, 2).to(device).to(torch.float32) / 255
+            optimizer.zero_grad()
+            reconstruction, vq_loss = model(batch)
+            loss = loss_vq_vae(batch, reconstruction, vq_loss)
+            loss.backward()
+            optimizer.step()
+            epoch_mse += (loss - vq_loss).item()  # mse = loss - vq
+            epoch_vq  += vq_loss.item()
+        train_mse_losses.append(epoch_mse / len(train_loader))
+        train_vq_losses.append(epoch_vq / len(train_loader))
+
+        model.eval()
+        epoch_mse, epoch_vq = 0.0, 0.0
+        with torch.no_grad():
+            for batch in val_loader:
+                batch = batch.permute(0, 3, 1, 2).to(device).to(torch.float32) / 255
+                reconstruction, vq_loss = model(batch)
+                loss = loss_vq_vae(batch, reconstruction, vq_loss)
+                epoch_mse += (loss - vq_loss).item()
+                epoch_vq  += vq_loss.item()
+        val_mse_losses.append(epoch_mse / len(val_loader))
+        val_vq_losses.append(epoch_vq  / len(val_loader))
+    return train_mse_losses, train_vq_losses, val_mse_losses, val_vq_losses

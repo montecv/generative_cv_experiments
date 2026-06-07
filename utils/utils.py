@@ -8,12 +8,12 @@ import torch
 from PIL import Image
 
 
-def plot_train_val_losses(train_losses, val_losses):
+def plot_train_val_losses(train_losses, val_losses, loss_name='Loss'):
     plt.figure(figsize=(8, 4))
     plt.plot(train_losses, label='train')
     plt.plot(val_losses, label='val')
     plt.xlabel('Epoch')
-    plt.ylabel('Loss')
+    plt.ylabel(loss_name)
     plt.legend()
     plt.tight_layout()
     plt.show()

@@ -89,9 +89,8 @@ def reconstruction_metrics(originals, reconstructions):
     }
 
 @torch.no_grad()
-def inception_features(images, batch_size=64):
+def inception_features(images, device, batch_size=64):
     """Extract 2048-d InceptionV3 features. images: (N, 3, H, W) in [0,1] -> (N, 2048) array."""
-    device = return_device()
 
     m = inception_v3(weights=Inception_V3_Weights.DEFAULT, aux_logits=True)
     m.fc = torch.nn.Identity()
@@ -108,10 +107,10 @@ def inception_features(images, batch_size=64):
         feats.append(model(x).cpu().numpy())
     return np.concatenate(feats, axis=0)
 
-def fid(real_images, fake_images, batch_size=64):
+def fid(real_images, fake_images, batch_size=64, device='cuda'):
     """Fréchet distance between two feature sets, each (N, D) array. Lower is better."""
-    fr = inception_features(real_images, batch_size)
-    ff = inception_features(fake_images, batch_size)
+    fr = inception_features(real_images, device, batch_size)
+    ff = inception_features(fake_images, device, batch_size)
 
     mu1, mu2 = fr.mean(0), ff.mean(0)
     cov1, cov2 = np.cov(fr, rowvar=False), np.cov(ff, rowvar=False)

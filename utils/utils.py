@@ -48,7 +48,7 @@ def return_device():
     return device
 
 
-def return_photos(path2photos):
+def return_photos(path2photos, size=64):
     paths = []
     for dirpath, _, filenames in os.walk(path2photos):
         for fname in filenames:
@@ -59,7 +59,7 @@ def return_photos(path2photos):
     for path in tqdm(paths):
         with open(path, 'rb') as f:
             image = np.array(Image.open(f).convert('RGB'))[80:-80, 80:-80]
-            image = np.array(Image.fromarray(image).resize((64, 64), Image.Resampling.LANCZOS))
+            image = np.array(Image.fromarray(image).resize((size, size), Image.Resampling.LANCZOS))
             all_photos.append(image)
 
     print(f'Photos uploaded: {len(all_photos)}')

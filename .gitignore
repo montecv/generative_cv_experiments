@@ -2,3 +2,7 @@
 __pycache__/
 checkpoints/
 *.pkl
+*.jpg
+*.png
+*.dat
+*.bz2

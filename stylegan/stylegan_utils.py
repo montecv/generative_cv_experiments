@@ -156,7 +156,7 @@ def align_face(filepath, predictor, output_size=256, transform_size=1024, enable
         blur = qsize * 0.02
         img += (ndimage.gaussian_filter(img, [blur, blur, 0]) - img) * np.clip(mask * 3.0 + 1.0, 0.0, 1.0)
         img += (np.median(img, axis=(0, 1)) - img) * np.clip(mask, 0.0, 1.0)
-        img = PIL.Image.fromarray(np.uint8(np.clip(np.rint(img), 0, 255)), 'RGB')
+        img = Image.fromarray(np.uint8(np.clip(np.rint(img), 0, 255)), 'RGB')
         quad += pad[:2]
 
     img = img.transform((transform_size, transform_size), Image.QUAD,
